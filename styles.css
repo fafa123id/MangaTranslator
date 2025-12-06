@@ -1,0 +1,91 @@
+/* Layar transparan saat select */
+#manga-overlay-container {
+  position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 2147483646; cursor: crosshair;
+}
+
+/* Kotak seleksi kuning */
+.manga-selection-box {
+  position: fixed; border: 2px dashed #ffeb3b; background: rgba(255, 235, 59, 0.2); z-index: 2147483647; pointer-events: none;
+}
+
+/* Loader */
+#manga-loader {
+  position: absolute; background: #222; color: #fff; padding: 5px 10px; border-radius: 4px; font-size: 12px; z-index: 2147483647; pointer-events: none;
+}
+
+/* HASIL TERJEMAHAN (BUBBLE) */
+.manga-bubble-result {
+  position: absolute;
+  background-color: #ffffff; /* Latar putih menutupi teks asli */
+  color: #000;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  padding: 4px;
+  
+  font-family: 'Comic Sans MS', 'Chalkboard SE', sans-serif; /* Font komik */
+  font-size: 13px;
+  line-height: 1.2;
+  text-align: center;
+  font-weight: 600;
+  
+  z-index: 2147483645;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+  
+  /* Flexbox untuk centering teks */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  white-space: pre-wrap;
+  cursor: pointer;
+  
+  /* Animasi muncul */
+  animation: popIn 0.3s ease-out;
+}
+
+.manga-bubble-result:hover {
+  border-color: #007bff;
+  background-color: #f8f9fa;
+}
+
+@keyframes popIn {
+  from { opacity: 0; transform: scale(0.8); }
+  to { opacity: 1; transform: scale(1); }
+}
+/* ... style yang sudah ada sebelumnya ... */
+
+/* Tombol Bersihkan Mengambang */
+.manga-clear-btn {
+  position: fixed;
+  bottom: 30px;
+  right: 30px; /* Pojok kanan bawah */
+  padding: 12px 20px;
+  background: #ff4444; /* Merah menyala */
+  color: white;
+  border: none;
+  border-radius: 30px;
+  font-family: Arial, sans-serif;
+  font-weight: bold;
+  font-size: 14px;
+  cursor: pointer;
+  box-shadow: 0 4px 15px rgba(255, 68, 68, 0.4);
+  z-index: 2147483647; /* Paling atas */
+  display: none; /* Default hidden */
+  transition: transform 0.2s, box-shadow 0.2s;
+  animation: slideUp 0.3s ease-out;
+}
+
+.manga-clear-btn:hover {
+  transform: scale(1.05);
+  background: #ff2222;
+  box-shadow: 0 6px 20px rgba(255, 68, 68, 0.6);
+}
+
+@keyframes slideUp {
+  from { transform: translateY(50px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+/* Style Bubble Result (Update sedikit biar rapi) */
+.manga-bubble-result {
+  transition: all 0.2s ease;
+}
