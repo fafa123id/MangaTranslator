@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <style>
+    body { width: 240px; background: #1a1a1a; color: white; font-family: sans-serif; padding: 15px; text-align: center;}
+    h3 { margin: 0 0 15px 0; color: #00c6ff; }
+    
+    .control-group { margin-bottom: 15px; text-align: left; }
+    label { font-size: 11px; color: #aaa; display: block; margin-bottom: 4px; }
+    select { 
+      width: 100%; padding: 8px; background: #333; color: white; 
+      border: 1px solid #555; border-radius: 4px; font-weight: bold;
+    }
+
+    .btn { width: 100%; padding: 12px; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; margin-bottom: 10px; font-size: 13px; display: flex; align-items: center; justify-content: center; gap: 8px;}
+    .btn-manual { background: #ffc107; color: #000; }
+    .btn-auto { background: #00c6ff; color: #000; }
+    .btn:hover { opacity: 0.9; transform: scale(1.02); transition: 0.2s; }
+
+    details { background: #252525; border-radius: 5px; padding: 8px; margin-bottom: 15px; text-align: left; }
+    summary { cursor: pointer; font-size: 12px; color: #00c6ff; font-weight: bold; user-select: none; }
+    .settings-content { margin-top: 10px; }
+
+    p { font-size: 10px; color: #888; margin-top: 5px; }
+  </style>
+</head>
+<body>
+  <h3>Manga Translator</h3>
+
+  <details>
+    <summary>Pengaturan API Key</summary>
+    <div class="settings-content">
+      <div class="control-group">
+        <label>OCR Space Key:</label>
+        <input type="password" id="ocrKey" placeholder="Paste OCR Key...">
+      </div>
+      <div style="font-size: 9px; color: #666; margin-top:5px;">Key tersimpan otomatis di browser.</div>
+    </div>
+  </details>
+
+  <div class="control-group">
+    <label>Terjemahkan Ke:</label>
+    <select id="tgtLang">
+      <option value="idn">Indonesia</option>
+      <option value="eng">Inggris</option>
+    </select>
+  </div>
+
+  <hr style="border: 0; border-top: 1px solid #333; margin: 15px 0;">
+  
+  <button id="btnManual" class="btn btn-manual">
+    Scan Manual
+  </button>
+  <p>Pilih area sendiri. Anti-Gagal (Bypass 403).</p>
+
+  <div style="height: 10px;"></div>
+
+  <button id="btnAuto" class="btn btn-auto">
+    Auto Detect
+  </button>
+  <p>Otomatis cari gambar.</p>
+
+  <script src="popup.js"></script>
+</body>
+</html>
