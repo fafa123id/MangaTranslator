@@ -3,12 +3,14 @@ if (!window.mangaTranslatorActive) {
   window.mangaTranslatorActive = true;
   let currentConfig = { tgtLang: 'idn' };
 
+  let autoDetectObserver = null;
+
   chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     if (request.config) {
       currentConfig = request.config;
     }
     if (request.action === "detect_images") {
-      detectAndAutoTranslate();
+      detectAndSmartTranslate();
     }
     if (request.action === "start_selection") {
       startManualSelection();
@@ -20,8 +22,17 @@ if (!window.mangaTranslatorActive) {
   let startX, startY, selectionBox, overlayContainer;
 
   function clearAllBubbles() {
+    if (autoDetectObserver) {
+      autoDetectObserver.disconnect();
+      autoDetectObserver = null;
+    }
+
     document.querySelectorAll('.manga-bubble-result').forEach(el => el.remove());
     
+    document.querySelectorAll('img[data-manga-processed="true"]').forEach(img => {
+      delete img.dataset.mangaProcessed;
+    });
+
     const clearBtn = document.getElementById('manga-clear-all-btn');
     if (clearBtn) clearBtn.style.display = 'none';
   }
@@ -145,33 +156,55 @@ if (!window.mangaTranslatorActive) {
     img.src = dataUrl;
   }
 
-  function detectAndAutoTranslate() {
+  function detectAndSmartTranslate() {
     clearAllBubbles(); 
 
     const images = document.querySelectorAll('img');
-    let targets = [];
+    let validTargets = [];
 
     images.forEach((img) => {
       if (img.naturalWidth > 300 && img.naturalHeight > 300 && isVisible(img)) {
-        targets.push(img);
+        validTargets.push(img);
       }
     });
 
-    if (targets.length === 0) {
+    if (validTargets.length === 0) {
       alert("Tidak ditemukan gambar manga yang terlihat di layar.");
       return;
     }
 
-    showToast(`Memproses ${targets.length} panel manga...`);
+    showToast(`Smart Auto: Scroll untuk menerjemahkan (${validTargets.length} gambar).`);
 
-    targets.forEach((img) => {
-      const loader = showLoaderAtImage(img);
-      
-      chrome.runtime.sendMessage({ action: "process_image_url", imageUrl: img.src, config: currentConfig }, (res) => {
-        loader.remove();
-        const rect = img.getBoundingClientRect();
-        handleTranslateResponse(res, rect.left + window.scrollX, rect.top + window.scrollY, img);
+    autoDetectObserver = new IntersectionObserver((entries, observer) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          const img = entry.target;
+          
+          if (!img.dataset.mangaProcessed) {
+            img.dataset.mangaProcessed = "true";
+            processSingleImage(img);
+            observer.unobserve(img);
+          }
+        }
       });
+    }, {
+      root: null,
+      rootMargin: '300px',
+      threshold: 0.1
+    });
+
+    validTargets.forEach(img => {
+      autoDetectObserver.observe(img);
+    });
+  }
+
+  function processSingleImage(img) {
+    const loader = showLoaderAtImage(img);
+    
+    chrome.runtime.sendMessage({ action: "process_image_url", imageUrl: img.src, config: currentConfig }, (res) => {
+      loader.remove();
+      const rect = img.getBoundingClientRect();
+      handleTranslateResponse(res, rect.left + window.scrollX, rect.top + window.scrollY, img);
     });
   }
 
@@ -190,12 +223,11 @@ if (!window.mangaTranslatorActive) {
       
       const errorMsg = res ? res.error : "Unknown Error";
       if (errorMsg.includes("429")) {
-        showToast("Server sibuk (429). Tunggu sebentar...");
+        console.warn("Server sibuk (429)");
       } else if (errorMsg.includes("403") || errorMsg.includes("Gagal mengambil")) {
-        alert(errorMsg);
-        showToast("Gagal Auto-Detect (Coba 'Scan Manual').");
+        console.warn("Gagal Auto-Detect gambar ini (CORS)");
       } else {
-        alert("Error: " + errorMsg);
+        console.error("Error Translate: " + errorMsg);
       }
     }
   }
